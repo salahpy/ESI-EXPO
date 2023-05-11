@@ -1,0 +1,4 @@
+# Ignore all migration directories except __init__.py
+**/migrations/*
+!**/migrations/__init__.py
+
