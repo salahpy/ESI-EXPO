@@ -6,6 +6,8 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+#middleware check if he is authencation
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("auth/", include("djoser.urls")),
