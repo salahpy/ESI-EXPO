@@ -11,6 +11,7 @@ def get_students(request):
         for item in my_data:
             data_dict = {
                 'email': item.email,
+                'username': item.username,
                 'first_name': item.first_name,
                 'last_name': item.last_name,
             }

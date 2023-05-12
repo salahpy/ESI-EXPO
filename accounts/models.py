@@ -10,7 +10,7 @@ from django.dispatch import receiver
 
 class UserManager(BaseUserManager):
     def create_user(
-        self, email, first_name, last_name, password=None, role=None, **extra_fields
+        self, email, first_name, last_name, password=None, role=None, username=None, **extra_fields
     ):
         if not email:
             raise ValueError("The Email field must be set")
@@ -20,6 +20,7 @@ class UserManager(BaseUserManager):
             first_name=first_name,
             last_name=last_name,
             role=role,
+            username=username,
             **extra_fields
         )
         user.set_password(password)
@@ -27,7 +28,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(
-        self, email, first_name, last_name, password=None, role="Admin",  **extra_fields
+        self, email, first_name, last_name, password=None, role="Admin", username=None, **extra_fields
     ):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -38,7 +39,7 @@ class UserManager(BaseUserManager):
             raise ValueError("Superuser must have is_superuser=True.")
 
         return self.create_user(
-            email, first_name, last_name, password, role, **extra_fields
+            email, first_name, last_name, password, role, username, **extra_fields
         )
 
 
@@ -51,6 +52,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, max_length=255)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
+    username = models.CharField(max_length=255, unique=True, blank=True, null=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=None)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -58,12 +60,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name", "role"]
+    REQUIRED_FIELDS = ["first_name", "last_name", "username", "role"]
 
     objects = UserManager()
 
-    def __str__(self):
+    def str(self):
         return self.email
+
+
 
 class StudentManager(BaseUserManager):
     def get_queryset(self, *args, **kwargs):
@@ -110,3 +114,36 @@ def create_user(sender, instance, created, **kwargs):
 
 class Supervisors(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    
+    
+  
+
+  
+
+class Projects(models.Model):
+    class Year(models.TextChoices): 
+        YEAR_2 = '2', '2CPI'
+        YEAR_3 = '3', '1CS'
+        YEAR_4 = '4', '2CS'
+        YEAR_5 = '5', '3CS'
+    class Category(models.TextChoices):
+        ARDUINO = 'Arduino', 'Arduino'
+        DESKTOP = 'Desktop App', 'Desktop App'
+        APP = 'App', 'App' 
+        WEBSITE = 'Web-app', 'Web-app'
+        
+
+     
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    year = models.CharField(max_length=1, choices=Year.choices, default=None)
+    category = models.CharField(max_length=20, choices=Category.choices, default=None)
+    created_by = models.ManyToManyField(User, related_name='projects_created', limit_choices_to={'role': 'STUDENT'}, blank=True)
+    supervised_by = models.ManyToManyField(User, related_name='projects_supervised', limit_choices_to={'role': 'SUPERVISOR'}, blank=True)
+
+    logo = models.ImageField(upload_to='project_logos/', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+   
+    
+    def __str__(self):
+        return self.title
