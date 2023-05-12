@@ -17,4 +17,3 @@ def get_students(request):
             data_list.append(data_dict)
         response_data = {'data': data_list}
         return JsonResponse(response_data, safe=False)
-
