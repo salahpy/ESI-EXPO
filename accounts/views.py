@@ -65,16 +65,17 @@ def ApiOverview(request):
 
 
 
-## the add   methode for projects
 
 class AddProject(mixins.ListModelMixin,
                   mixins.CreateModelMixin,
-                  generics.GenericAPIView): 
+                  generics.GenericAPIView,
+                  mixins.UpdateModelMixin): 
     serializer_class = ProjectsSerializer
     queryset = Projects.objects.all()
+    ## the add   methode for projects
     def post(self, request):
         serializer = ProjectsSerializer(data=request.data)
-
+    
         # if Projects.objects.filter(**request.data).exists():
         #     raise serializers.ValidationError('This data already exists')
       
@@ -82,9 +83,8 @@ class AddProject(mixins.ListModelMixin,
             created_by_data = request.data.get('created_by', [])
             supervised_by_data = request.data.get('supervised_by', [])
             project = serializer.save(
-                
-                
-                
+    
+               
             )
 
             # Add the created_by and supervised_by relationships
@@ -94,6 +94,32 @@ class AddProject(mixins.ListModelMixin,
             return Response(serializer.data)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    ## the update  methode for projects
+    def put(self, request,project_id):
+            project = Projects.objects.get(id=project_id)
+            print(project)
+            serializer = ProjectsSerializer(project,data=request.data)
+        
+            # if Projects.objects.filter(**request.data).exists():
+            #     raise serializers.ValidationError('This data already exists')
+        
+            if serializer.is_valid():
+                created_by_data = request.data.get('created_by', [])
+                supervised_by_data = request.data.get('supervised_by', [])
+                project = serializer.save(
+        
+                
+                )
+
+                # Add the created_by and supervised_by relationships
+                project.created_by.set(created_by_data)
+                project.supervised_by.set(supervised_by_data)
+
+                return Response(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 ## the view / listing  methode for projects
 
