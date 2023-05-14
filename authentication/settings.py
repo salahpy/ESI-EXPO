@@ -31,7 +31,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    
+   'drf_yasg',
+   "django.contrib.admin",
+    'rest_framework_swagger',
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -163,7 +166,7 @@ DJOSER = {
     "CONFIRMATION_URL": "confirm/{uid}/{token}",
     "SERIALIZERS": {
         "user_create": "accounts.serializers.UserCreateSerializer",
-        "user": "accounts.serializers.UserSerializer",
+        "user": "accounts.serializers.UserrSerializer",
     },
     "PERMISSIONS": {
         "user": ["rest_framework.permissions.AllowAny"],

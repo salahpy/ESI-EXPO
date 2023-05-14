@@ -1,10 +1,9 @@
 from rest_framework import serializers
-from .models import User
+from .models import User , Projects
 from djoser.serializers import UserCreateSerializer
 from django.contrib.auth import get_user_model
-
-
-class UserSerializer(serializers.ModelSerializer):
+ 
+class UserrSerializer(serializers.ModelSerializer):
     role = serializers.CharField()
 
     class Meta:
@@ -34,3 +33,20 @@ class UserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = User
         fields = ("id", "email", "first_name", "last_name", "username", "role", "password")
+        
+
+
+
+class ProjectsSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+       model = Projects 
+       fields = ('title', 'description', 'year', 'category','created_by','supervised_by','logo','created_at')
+
+        
+        
+        
+        
+
+
+    
