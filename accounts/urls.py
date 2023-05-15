@@ -8,4 +8,5 @@ urlpatterns = [
     path('ProejctList/all/', views.view_Projects, name='view_items'),
     path('ProejctList/delete/<int:project_id>/', views.delete_project, name='delete-project'),
     path('ProejctList/update/<int:project_id>/', views.AddProject.as_view(), name='update-items'),  
+    path('ProejctList/category/<str:category>/',views.ProjectsList_bycategory.as_view(), name='projects-list-filtered'),
 ]

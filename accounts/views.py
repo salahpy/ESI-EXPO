@@ -11,6 +11,8 @@ from rest_framework import serializers, mixins, viewsets, generics
 from rest_framework import status
 from rest_framework.views import APIView
 
+
+
 ## fatima code 
 
 def get_students(request):
@@ -141,9 +143,29 @@ def delete_project(request,project_id):
         project = Projects.objects.get(id=project_id)
     except Projects.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-
     project.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # the update methode for projects model 
+
+class ProjectsList_bycategory(generics.ListAPIView):
+    serializer_class = ProjectsSerializer
+    region_separator = ","
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned projects to a specific category,
+        by filtering against a `category` query parameter in the URL.
+        """
+        category = self.request.query_params.get("category", None)
+        if category:
+            categories = category.split(self.region_separator)
+            queryset = Projects.objects.filter(category=categories)
+        else:
+            queryset = Projects.objects.all()
+        
+        return queryset
+
+
+  
