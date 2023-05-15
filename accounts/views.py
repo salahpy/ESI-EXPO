@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 
 
 
-## fatima code 
+## end fatima code 
 
 def get_students(request):
     if request.method == 'GET':
@@ -147,25 +147,38 @@ def delete_project(request,project_id):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# the update methode for projects model 
 
-class ProjectsList_bycategory(generics.ListAPIView):
+
+
+
+
+
+####### filter by category ###
+class CategoryList(generics.ListAPIView):
     serializer_class = ProjectsSerializer
-    region_separator = ","
 
     def get_queryset(self):
-        """
-        Optionally restricts the returned projects to a specific category,
-        by filtering against a `category` query parameter in the URL.
-        """
-        category = self.request.query_params.get("category", None)
-        if category:
-            categories = category.split(self.region_separator)
-            queryset = Projects.objects.filter(category=categories)
-        else:
-            queryset = Projects.objects.all()
+        return Projects.objects.filter(category=self.kwargs['category'])
+    
+######## filter by multiple parameter ###
+
+class ProjectsViewSet(APIView):
+    def get(self, request):
         
-        return queryset
+        category = request.GET.get('category')
+        year = request.GET.get('year')
+        used_tech = request.GET.get('used_tech')
+        if ',' in used_tech:
+            used_tech = used_tech.split(',')
 
-
-  
+        print(category, year,used_tech)
+     
+        filtring = Projects.objects.filter(category=category,year=year,user_tech__icontains=used_tech) 
+        serializer = ProjectsSerializer(filtring,many=True)  
+        return JsonResponse(serializer.data,safe=False)
+        
+          
+          
+          
+          
+        

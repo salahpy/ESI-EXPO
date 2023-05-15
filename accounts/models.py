@@ -134,25 +134,17 @@ class Projects(models.Model):
         
 
      
-    title = models.CharField(max_length=200, unique=True)
+    title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     year = models.CharField(max_length=1, choices=Year.choices, default=None)
     category = models.CharField(max_length=20, choices=Category.choices, default=None)
     created_by = models.ManyToManyField(User, related_name='projects_created', limit_choices_to={'role': 'STUDENT'}, blank=True)
     supervised_by = models.ManyToManyField(User, related_name='projects_supervised', limit_choices_to={'role': 'SUPERVISOR'}, blank=True)
-    
-    logo = models.ImageField(upload_to='project_logos/',blank=True,default=None)
+    used_techs = models.TextField(blank=True)
+
+    logo = models.ImageField(upload_to='project_logos/', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-   
+    
     
     def __str__(self):
         return self.title
-
-
-    
-    
-    
-
-
-
-
