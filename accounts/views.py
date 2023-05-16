@@ -10,7 +10,7 @@ from .serializers import ProjectsSerializer
 from rest_framework import serializers, mixins, viewsets, generics
 from rest_framework import status
 from rest_framework.views import APIView
-
+from django.db.models import Q
 
 
 ## end fatima code 
@@ -160,25 +160,115 @@ class CategoryList(generics.ListAPIView):
     def get_queryset(self):
         return Projects.objects.filter(category=self.kwargs['category'])
     
+    
+    
 ######## filter by multiple parameter ###
 
+
+## or between multiple parameters version  ###
+
+
+# class ProjectsViewSet(APIView):
+#     def get(self, request):
+        
+#         category = request.GET.get('category')
+#         year = request.GET.get('year')
+#         used_techs = request.GET.get('used_techs')
+        
+#         query = Q(category=category, year=year)
+#         if ',' in used_techs:
+#             used_techs = used_techs.split(',')            
+#             for search_string in used_techs:
+#                 query |= Q(used_techs__contains=search_string)
+#         else:
+#             query |= Q(used_techs__contains=used_techs)
+        
+#         results = Projects.objects.filter(query)  
+#         print(category, year,used_techs)
+     
+#         serializer = ProjectsSerializer(results,many=True)  
+#         return JsonResponse(serializer.data,safe=False)
+    
+
+
+## and  between multiple parameters version  ###
 class ProjectsViewSet(APIView):
     def get(self, request):
-        
         category = request.GET.get('category')
         year = request.GET.get('year')
-        used_tech = request.GET.get('used_tech')
-        if ',' in used_tech:
-            used_tech = used_tech.split(',')
+        used_techs = request.GET.get('used_techs')
 
-        print(category, year,used_tech)
-     
-        filtring = Projects.objects.filter(category=category,year=year,user_tech__icontains=used_tech) 
-        serializer = ProjectsSerializer(filtring,many=True)  
-        return JsonResponse(serializer.data,safe=False)
+        query = Q()
+        if category:
+            query &= Q(category=category)
+        if year:
+            query &= Q(year=year)
+        if used_techs:
+            if ',' in used_techs:
+                used_techs = used_techs.split(',')
+                for search_string in used_techs:
+                    query &= Q(used_techs__contains=search_string)
+            else:
+                query &= Q(used_techs__contains=used_techs)
+
+        results = Projects.objects.filter(query)
+        print(category, year, used_techs)
+
+        serializer = ProjectsSerializer(results, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+
+    
+## search function by any field 
+# def search_projects(query):
+#     fields = ['title', 'description', 'year', 'category', 'used_techs']
+#     queries = [Q(**{field + '__icontains': query}) for field in fields]
+#     query = Q()
+#     for item in queries:
+#         query |= item
+#     results = Projects.objects.filter(query)
+#     return results
+
+
+
+
+
+
+# def search_projects(query):
+#     fields = ['title', 'description', 'year', 'category', 'used_techs']
+#     results = Projects.objects.filter(
+#         Q(created_by__name__icontains=query) |
+#         Q(supervised_by__name__icontains=query)
+#     )
+#     for field in fields:
+#         results |= Projects.objects.filter(**{field + '__icontains': query})
+#     return results
+
+## or between multiple parameters version  ###
+
+class Search(APIView):
+    def get(self, request):
+        title = request.GET.get('title')
+        category = request.GET.get('category')
+        year = request.GET.get('year')
+        used_techs = request.GET.get('used_techs')
         
-          
-          
-          
+        query = Q(category=category, year=year,title=title)
+        if ',' in used_techs:
+            used_techs = used_techs.split(',')            
+            for search_string in used_techs:
+                query |= Q(used_techs__contains=search_string)
+        else:
+            query |= Q(used_techs__contains=used_techs)
+        
+        results = Projects.objects.filter(query)  
+        print(title,category, year,used_techs)
+     
+        serializer = ProjectsSerializer(results,many=True)  
+        return JsonResponse(serializer.data,safe=False)
+    
+
+
+       
           
         
