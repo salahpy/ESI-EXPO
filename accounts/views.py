@@ -13,8 +13,10 @@ from rest_framework.views import APIView
 from django.db.models import Q
 
 
-## end fatima code 
+from django.views.decorators.csrf import csrf_exempt
 
+## end fatima code 
+@csrf_exempt
 def get_students(request):
     if request.method == 'GET':
         user_ids = Students.objects.values_list('user_id', flat=True)
@@ -31,7 +33,19 @@ def get_students(request):
         response_data = {'data': data_list}
         return JsonResponse(response_data, safe=False)
 
-
+def get_user_profile(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        user_data = {
+            'username': user.username,
+            'email': user.email,
+            'first_name' : user.first_name,
+            'last_name' : user.last_name,
+            'created_at' : user.created_at,
+        }
+        return JsonResponse(user_data)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
 #############################################################################################  
 # fatima code : rest framework for projecs models 
 @api_view(['GET'])
