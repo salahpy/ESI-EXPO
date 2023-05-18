@@ -1,0 +1,11 @@
+certifi==2023.5.7
+cffi==1.15.1
+charset-normalizer==3.1.0
+cryptography==40.0.2
+defusedxml==0.7.1
+Django==3.2
+django-templated-mail==1.1.1
+djangorestframework==3.12.0
+djangorestframework-simplejwt==5.2.2
+djoser==2.2.0
+idna==3.4
