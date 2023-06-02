@@ -42,16 +42,22 @@ def get_students(request):
         my_data = User.objects.filter(id__in=user_ids)
         data_list = []
         for item in my_data:
+            created_at_date = item.created_at.strftime('%Y-%m-%d')
             data_dict = {
                 'email': item.email,
                 'username': item.username,
                 'first_name': item.first_name,
                 'last_name': item.last_name,
+                'created_at' : created_at_date,
             }
             data_list.append(data_dict)
-        response_data = {'data': data_list}
-        return JsonResponse(response_data, safe=False)
+        return JsonResponse(data_list, safe=False)
 
+def get_projects_by_user(request, user_id):
+    projects = Projects.objects.filter(created_by=user_id)
+    serializer = ProjectsSerializer(projects,many=True)
+    
+    return JsonResponse(serializer.data,safe=False)
 
 #############################################################################################  
 # fatima code : rest framework for projecs models 
