@@ -11,9 +11,19 @@ from rest_framework import serializers, mixins, viewsets, generics
 from rest_framework import status
 from rest_framework.views import APIView
 from django.db.models import Q
+from django.core.mail import send_mail
 
+def send_email(request):
+    if request.method == 'POST':
+        user_email = request.POST.get('email') 
+        message = 'Hello, this is the email body.' 
+        try:
+            send_mail('Subject', message, 'projectmanagerxcontact@gmail.com', [user_email])
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
-## end fatima code 
 
 def get_students(request):
     if request.method == 'GET':
