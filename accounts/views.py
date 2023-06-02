@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.http import JsonResponse
 from .models import Students, User
 import json
@@ -11,9 +11,29 @@ from rest_framework import serializers, mixins, viewsets, generics
 from rest_framework import status
 from rest_framework.views import APIView
 from django.db.models import Q
-
-
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
+
+def send_email(request, email1 , email2):
+    user1 = get_user_model().objects.get(email=email1)
+    user2 = get_user_model().objects.get(email=email2)
+    sender_name = user1.first_name
+    sender_email = user1.email
+    recipient_name = user2.first_name
+
+    context = {
+        'recipient_name': recipient_name,
+        'sender_name': sender_name,
+        'sender_email': sender_email,
+    }
+    email_content = render_to_string('invitation_email.html',context)
+    try:
+        send_mail('Team Joining Invitation', '', 'projectmanagerxcontact@gmail.com', [email2], html_message=email_content)
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 ## end fatima code 
 @csrf_exempt
@@ -23,29 +43,41 @@ def get_students(request):
         my_data = User.objects.filter(id__in=user_ids)
         data_list = []
         for item in my_data:
+            created_at_date = item.created_at.strftime('%Y-%m-%d')
+            skillsarray = item.skills.split(",")
             data_dict = {
                 'email': item.email,
                 'username': item.username,
                 'first_name': item.first_name,
                 'last_name': item.last_name,
+                'skills' : skillsarray,
+                'created_at' : created_at_date,
             }
             data_list.append(data_dict)
-        response_data = {'data': data_list}
-        return JsonResponse(response_data, safe=False)
+        return JsonResponse(data_list, safe=False)
+
+def get_projects_by_user(request, user_id):
+    projects = Projects.objects.filter(created_by=user_id)
+    serializer = ProjectsSerializer(projects,many=True)
+    
+    return JsonResponse(serializer.data,safe=False)
 
 def get_user_profile(request, user_id):
     try:
         user = User.objects.get(id=user_id)
+        skillsarray = user.skills.split(",")
         user_data = {
             'username': user.username,
             'email': user.email,
             'first_name' : user.first_name,
             'last_name' : user.last_name,
+            'skills' : skillsarray,
             'created_at' : user.created_at,
         }
         return JsonResponse(user_data)
     except User.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
+
 #############################################################################################  
 # fatima code : rest framework for projecs models 
 @api_view(['GET'])
@@ -79,6 +111,15 @@ def ApiOverview(request):
 #         return Response(status=status.HTTP_400_BAD_REQUEST)
 ##############################################################
 
+def upload_image(request, project_id):
+    project = Projects.objects.get(id=project_id)
+
+    if request.method == 'POST':
+        image = request.FILES.get('image')
+        project.image = image
+        project.save()
+
+    return redirect('ProjectList/create/', project_id=project_id) 
 
 
 

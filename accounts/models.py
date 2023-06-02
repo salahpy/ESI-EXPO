@@ -10,7 +10,7 @@ from django.dispatch import receiver
 
 class UserManager(BaseUserManager):
     def create_user(
-        self, email, first_name, last_name, password=None, role=None, username=None, **extra_fields
+        self, email, first_name, last_name, password=None, role=None, username=None, skills=None, **extra_fields
     ):
         if not email:
             raise ValueError("The Email field must be set")
@@ -21,6 +21,7 @@ class UserManager(BaseUserManager):
             last_name=last_name,
             role=role,
             username=username,
+            skills=skills,
             **extra_fields
         )
         user.set_password(password)
@@ -28,7 +29,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(
-        self, email, first_name, last_name, password=None, role="Admin", username=None, **extra_fields
+        self, email, first_name, last_name, password=None, role="Admin", username=None, skills=None, **extra_fields
     ):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -39,7 +40,7 @@ class UserManager(BaseUserManager):
             raise ValueError("Superuser must have is_superuser=True.")
 
         return self.create_user(
-            email, first_name, last_name, password, role, username, **extra_fields
+            email, first_name, last_name, password, role, username, skills,**extra_fields
         )
 
 
@@ -54,6 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=50)
     username = models.CharField(max_length=255, unique=True, blank=True, null=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=None)
+    skills = models.CharField(max_length=255, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -141,8 +143,8 @@ class Projects(models.Model):
     created_by = models.ManyToManyField(User, related_name='projects_created', limit_choices_to={'role': 'STUDENT'}, blank=True)
     supervised_by = models.ManyToManyField(User, related_name='projects_supervised', limit_choices_to={'role': 'SUPERVISOR'}, blank=True)
     used_techs = models.TextField(blank=True)
-
     logo = models.ImageField(upload_to='project_logos/', blank=True)
+    image = models.ImageField(upload_to='project_images/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     
