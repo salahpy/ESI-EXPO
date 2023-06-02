@@ -12,17 +12,28 @@ from rest_framework import status
 from rest_framework.views import APIView
 from django.db.models import Q
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.contrib.auth import get_user_model
 
-def send_email(request):
-    if request.method == 'POST':
-        user_email = request.POST.get('email') 
-        message = 'Hello, this is the email body.' 
-        try:
-            send_mail('Subject', message, 'projectmanagerxcontact@gmail.com', [user_email])
-            return JsonResponse({'success': True})
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def send_email(request, email1 , email2):
+    user1 = get_user_model().objects.get(email=email1)
+    user2 = get_user_model().objects.get(email=email2)
+    sender_name = user1.first_name
+    sender_email = user1.email
+    recipient_name = user2.first_name
+
+    context = {
+        'recipient_name': recipient_name,
+        'sender_name': sender_name,
+        'sender_email': sender_email,
+    }
+    email_content = render_to_string('invitation_email.html',context)
+    try:
+        send_mail('Team Joining Invitation', '', 'projectmanagerxcontact@gmail.com', [email2], html_message=email_content)
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 def get_students(request):
