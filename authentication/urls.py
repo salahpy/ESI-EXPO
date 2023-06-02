@@ -8,6 +8,9 @@ from rest_framework_simplejwt.views import (
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 
 schema_view = get_schema_view(
@@ -41,3 +44,5 @@ urlpatterns += [
     path("jwt/create/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("jwt/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -90,9 +91,9 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "railway",
         "USER": "postgres",
-        "PASSWORD": "f94yFrVUAuGCKvRiiYbY",
-        "HOST": "containers-us-west-160.railway.app",
-        "PORT": "6473",
+        "PASSWORD": "DUqS52C1fPNb7nn8DFU1",
+        "HOST": "containers-us-west-102.railway.app",
+        "PORT": "6975",
     }
 }
 
@@ -186,3 +187,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "projectmanagerxcontact@gmail.com"
 EMAIL_HOST_PASSWORD = "bksftkwseutnkvtp"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
